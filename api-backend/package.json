@@ -1,28 +1,30 @@
 {
-    "name": "api-backend",
-    "version": "1.0.0",
-    "main": "src/app.ts",
-    "scripts": {
-        "dev": "tsc && node dist/src/app.js",
-        "start": "tsc && nodemon dist/api/api.js",
-        "startapi": "nodemon --ext ts,js,json --exec \"node --no-warnings --loader ts-node/esm api/api.ts\""
-    },
-    "keywords": [],
-    "type": "module",
-    "author": "",
-    "license": "ISC",
-    "description": "",
-    "devDependencies": {
-        "@types/cors": "^2.8.17",
-        "@types/express": "^5.0.0",
-        "@types/node": "^22.10.2",
-        "nodemon": "^3.1.9",
-        "prisma": "^6.1.0",
-        "ts-node": "^10.9.2",
-        "typescript": "^5.7.2"
-    },
-    "dependencies": {
-        "@prisma/client": "^6.1.0",
-        "express": "^4.21.2"
-    }
+  "name": "api-backend",
+  "version": "1.0.0",
+  "main": "src/app.ts",
+  "scripts": {
+    "dev": "tsc && node dist/src/app.js",
+    "start": "tsc && nodemon dist/api/api.js",
+    "startapi": "nodemon --ext ts,js,json --exec \"node --no-warnings --loader ts-node/esm api/api.ts\""
+  },
+  "keywords": [],
+  "type": "module",
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.2",
+    "nodemon": "^3.1.9",
+    "prisma": "^6.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.1.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "node-fetch": "^3.3.2"
+  }
 }

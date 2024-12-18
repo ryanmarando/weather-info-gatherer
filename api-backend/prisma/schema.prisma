@@ -27,3 +27,11 @@ model WeatherInput {
 
   @@map("weather_input")
 }
+
+model Admin {
+  id    Int    @id @default(autoincrement())
+  email String @unique
+  name  String
+
+  @@map("admin")
+}
