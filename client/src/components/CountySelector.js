@@ -2,22 +2,22 @@ import React, { useState } from "react";
 
 // List of counties in Southwestern Ohio (you can expand this list if needed)
 const counties = [
-  "Mercer",
-  "Adams",
-  "Brown",
+  "Auglaize",
   "Butler",
-  "Clermont",
+  "Champaign",
+  "Clark",
   "Clinton",
-  "Hamilton",
-  "Highland",
+  "Darke",
+  "Greene",
+  "Logan",
+  "Mercer",
   "Miami",
   "Montgomery",
   "Preble",
+  "Randolph",
+  "Shelby",
   "Warren",
-  "Clark",
-  "Darke",
-  "Greene",
-  "Pickaway",
+  "Wayne",
 ];
 
 const CountySelector = ({ onSelectedCountiesChange }) => {

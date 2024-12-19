@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import fetch from "node-fetch";
 const prisma = new PrismaClient();
 // const baseURL = "http://localhost:3000/getAllWeatherInputs";
 // try {
@@ -9,7 +8,6 @@ const prisma = new PrismaClient();
 // } catch (err: any) {
 //   console.log(err.message);
 // }
-const response = fetch("http://127.0.0.1:3000/getAllWeatherInputs");
 //await prisma.weatherInput.deleteMany();
 // const weather_input = await prisma.weatherInput.create({
 //     data: {
@@ -29,20 +27,20 @@ const response = fetch("http://127.0.0.1:3000/getAllWeatherInputs");
 // weather_inputs.forEach((input) => {
 //     console.log(JSON.stringify(input, null, 2));
 // });
-// const weather_input = await prisma.weatherInput.createMany({
-//   data: [
-//     {
-//       email: "testlocationmont@example.com",
-//       name: "Mont Marando",
-//       precipTotal: 1.5, // Replace with actual rainfall total
-//       location: "Montgomery",
-//     },
-//     {
-//       email: "testlocationgreene@example.com",
-//       name: "Greene Marando",
-//       precipTotal: 18.5, // Replace with actual rainfall total
-//       location: "Greene",
-//     },
-//   ],
-// });
-// console.log(weather_input);
+const weather_input = await prisma.weatherInput.createMany({
+    data: [
+        {
+            email: "anothertest@example.com",
+            name: "Nick Dunn",
+            precipTotal: 7.5, // Replace with actual rainfall total
+            location: "Clark",
+        },
+        {
+            email: "tryingthis@example.com",
+            name: "Austin Chaney",
+            precipTotal: 6.5, // Replace with actual rainfall total
+            location: "Preble",
+        },
+    ],
+});
+console.log(weather_input);

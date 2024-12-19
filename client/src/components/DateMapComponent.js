@@ -6,74 +6,92 @@ const DateMapComponent = ({ onDateRangeChange }) => {
   const [formattedStartDate, setFormattedStartDate] = useState("");
   const [formattedEndDate, setFormattedEndDate] = useState("");
 
-  // Effect hook to set startDate to today’s date when the component mounts
+  const formatDate = (date) => {
+    return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}/${String(date.getDate()).padStart(2, "0")}`;
+  };
+
   useEffect(() => {
     const today = new Date();
-    setStartDate(today);
-    setEndDate(today);
+    const tomorrow = new Date(today);
+    tomorrow.setDate(today.getDate() + 1);
 
-    const formatted = `${today.getFullYear()}/${String(
-      today.getMonth() + 1
-    ).padStart(2, "0")}/${String(today.getDate()).padStart(2, "0")}`;
-    setFormattedStartDate(formatted);
-    setFormattedEndDate(formatted);
-  }, []);
+    setStartDate(today);
+    setEndDate(tomorrow);
+
+    const formattedStart = formatDate(today);
+    const formattedEnd = formatDate(tomorrow);
+
+    setFormattedStartDate(formattedStart);
+    setFormattedEndDate(formattedEnd);
+
+    // Inform the parent of the initial date range
+    onDateRangeChange(formattedStart, formattedEnd);
+  }, [onDateRangeChange]); // Add onDateRangeChange here
 
   // Function to handle start date selection
   const handleStartDateChange = (event) => {
     const inputDate = event.target.value;
     const date = new Date(inputDate + "T00:00:00");
-    const formatted = `${date.getFullYear()}/${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")}`;
+
+    const formatted = formatDate(date);
 
     setStartDate(date);
     setFormattedStartDate(formatted);
 
-    // Adjust end date if it's not valid (end date before start date)
+    // Adjust end date if it's before the new start date
     if (endDate && endDate < date) {
       const newEndDate = new Date(date);
-      newEndDate.setDate(date.getDate() + 1); // Add 1 day
+      newEndDate.setDate(date.getDate() + 1);
       setEndDate(newEndDate);
 
-      const formattedEnd = `${newEndDate.getFullYear()}/${String(
-        newEndDate.getMonth() + 1
-      ).padStart(2, "0")}/${String(newEndDate.getDate()).padStart(2, "0")}`;
+      const formattedEnd = formatDate(newEndDate);
       setFormattedEndDate(formattedEnd);
-    }
 
-    // Inform the parent of the new start date and end date
-    onDateRangeChange(formatted, formattedEndDate);
+      // Inform the parent of the updated date range
+      if (onDateRangeChange) {
+        onDateRangeChange(formatted, formattedEnd);
+      }
+    } else {
+      // Inform the parent of the updated start date
+      if (onDateRangeChange) {
+        onDateRangeChange(formatted, formattedEndDate);
+      }
+    }
   };
 
   // Function to handle end date selection
   const handleEndDateChange = (event) => {
     const inputDate = event.target.value;
     const date = new Date(inputDate + "T00:00:00");
-    const formatted = `${date.getFullYear()}/${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}/${String(date.getDate()).padStart(2, "0")}`;
 
-    // Check if the end date is before the start date, and adjust accordingly
     if (startDate && date < startDate) {
       alert(
         "End date cannot be before the start date! Automatically setting end date to one day after the start date."
       );
       const newEndDate = new Date(startDate);
-      newEndDate.setDate(startDate.getDate() + 1); // Add 1 day
+      newEndDate.setDate(startDate.getDate() + 1);
       setEndDate(newEndDate);
-      setFormattedEndDate(
-        `${newEndDate.getFullYear()}/${String(
-          newEndDate.getMonth() + 1
-        ).padStart(2, "0")}/${String(newEndDate.getDate()).padStart(2, "0")}`
-      );
+
+      const formattedEnd = formatDate(newEndDate);
+      setFormattedEndDate(formattedEnd);
+
+      // Inform the parent of the adjusted date range
+      if (onDateRangeChange) {
+        onDateRangeChange(formattedStartDate, formattedEnd);
+      }
     } else {
       setEndDate(date);
+      const formatted = formatDate(date);
       setFormattedEndDate(formatted);
-    }
 
-    // Inform the parent of the new start date and end date
-    onDateRangeChange(formattedStartDate, formatted);
+      // Inform the parent of the updated end date
+      if (onDateRangeChange) {
+        onDateRangeChange(formattedStartDate, formatted);
+      }
+    }
   };
 
   return (

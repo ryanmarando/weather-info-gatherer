@@ -7,6 +7,7 @@ const prisma = new PrismaClient();
 const app = express();
 const port = 3000;
 
+app.use(express.json());
 app.use(cors());
 
 app.get("/", (req, res) => {
@@ -121,6 +122,51 @@ const parseUserDataByTimeStamp = async (startTime: string, endTime: string) => {
   });
   return weather_input;
 };
+
+app.post("/createWeatherInput", async (req: any, res: any) => {
+  const { email, name, precipTotal, location, picture } = req.body;
+  if (!email || !name || !precipTotal || !location) {
+    return res
+      .status(400)
+      .json({ error: "All fields required expect pictures." });
+  }
+  try {
+    const weather_input = await prisma.weatherInput.create({
+      data: {
+        email: email,
+        name: name,
+        precipTotal: parseFloat(precipTotal),
+        location: location,
+        picture: picture,
+      },
+    });
+    console.log("Successful POST of Id:", weather_input.id);
+    res.status(201).json(weather_input);
+  } catch (error) {
+    console.log(`Unsuccessful POST Of Weather Input`);
+    res.status(404).json({
+      error: `Unsuccesful POST User Error.`,
+    });
+    return;
+  }
+});
+
+app.delete("/deleteWeatherInput/:id", async (req: any, res: any) => {
+  const userId = parseInt(req.params.id);
+  try {
+    const result = await prisma.weatherInput.delete({
+      where: { id: userId }, // Ensure the ID is parsed as an integer
+    });
+    console.log("Successful DELETE of Id:", userId);
+    return res.sendStatus(200);
+  } catch (error: any) {
+    if (error.code === "P2025") {
+      return res.status(404).json({ error: "Weather input not found." });
+    }
+  }
+  console.error("Error deleting weather input:", Error);
+  return res.status(500).json({ error: "Internal server error." });
+});
 
 app.listen(port, "0.0.0.0", () => {
   console.log(`API listening on http://localhost:${port}`);
