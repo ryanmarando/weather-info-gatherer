@@ -29,11 +29,11 @@ app.get("/getWeatherInput", async (req, res) => {
             weather_input = await parseUserDataByLocationAndTime(String(userLocation), String(req.query.startTime), String(req.query.endTime));
         }
         else if (userLocation === undefined && starttimeStamp && endtimeStamp) {
-            console.log(`Successful GET Of Weather Inputs Times Starting At: ${starttimeStamp} and Ending: ${endtimeStamp}`);
+            console.log(`Successful GET Parameter Inputs Times Starting At: ${starttimeStamp} and Ending: ${endtimeStamp}`);
             weather_input = await parseUserDataByTimeStamp(String(req.query.startTime), String(req.query.endTime));
         }
-        else if (userLocation &&
-            (starttimeStamp !== "undefined" || !endtimeStamp)) {
+        else if (userLocation !== undefined &&
+            (!starttimeStamp || !endtimeStamp)) {
             console.log(`Successful GET Of Weather Inputs Location: ${userLocation}`);
             weather_input = await parseUserDataByLocation(String(userLocation));
         }
@@ -45,9 +45,9 @@ app.get("/getWeatherInput", async (req, res) => {
             return;
         }
         if (!weather_input || weather_input.length === 0) {
-            console.log(`Unsuccessful GET Of Weather Inputs Location: ${userLocation}`);
+            console.log(`Unsuccessful GET Of Weather Inputs`);
             res.status(404).json({
-                error: `No weather inputs for ${userLocation}`,
+                error: `No weather inputs for those parameters`,
             });
             return;
         }
