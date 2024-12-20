@@ -8,6 +8,8 @@ import {
     S3Client,
     PutObjectCommand,
     GetObjectCommand,
+    BucketAccelerateStatus,
+    DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
 import dotenv from "dotenv";
 import crypto from "crypto";
@@ -300,6 +302,14 @@ app.delete("/deleteWeatherInput/:id", async (req: any, res: any) => {
         const result = await prisma.weatherInput.delete({
             where: { id: userId }, // Ensure the ID is parsed as an integer
         });
+        if (result.picturePath) {
+            const params: any = {
+                Bucket: bucketName,
+                Key: result.picturePath,
+            };
+            const command = new DeleteObjectCommand(params);
+            await s3.send(command);
+        }
         console.log("Successful DELETE of Id:", userId);
         return res.sendStatus(200);
     } catch (error: any) {
