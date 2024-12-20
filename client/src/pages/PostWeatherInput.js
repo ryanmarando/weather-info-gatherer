@@ -1,16 +1,16 @@
 import React, { useState } from "react";
 import { baseURL } from "../config";
+import stormcenter_logo from "../images/stormcenter_logo.png";
 
 const WeatherInputForm = () => {
+  const [message, setMessage] = useState("");
   const [formData, setFormData] = useState({
     email: "",
     name: "",
     precipTotal: "",
     location: "",
-    picture: "",
+    picture: null, // Store the base64-encoded picture
   });
-
-  const [message, setMessage] = useState("");
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,6 +18,49 @@ const WeatherInputForm = () => {
       ...prevData,
       [name]: value,
     }));
+  };
+
+  const resizeImage = (file, maxWidth, maxHeight) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const canvas = document.createElement("canvas");
+      const ctx = canvas.getContext("2d");
+
+      img.onload = () => {
+        let { width, height } = img;
+
+        if (width > maxWidth || height > maxHeight) {
+          const scalingFactor = Math.min(maxWidth / width, maxHeight / height);
+          width = width * scalingFactor;
+          height = height * scalingFactor;
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob((blob) => resolve(blob), file.type);
+      };
+
+      img.onerror = reject;
+      img.src = URL.createObjectURL(file);
+    });
+  };
+
+  // Example usage in handleImageChange
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const resizedImage = await resizeImage(file, 800, 800); // Resize to 800x800
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setFormData((prevData) => ({
+          ...prevData,
+          picture: reader.result.split(",")[1], // Extract base64 string
+        }));
+      };
+      reader.readAsDataURL(resizedImage);
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -29,7 +72,7 @@ const WeatherInputForm = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(formData), // Send JSON including base64 picture
       });
 
       if (!response.ok) {
@@ -37,22 +80,40 @@ const WeatherInputForm = () => {
       }
 
       const result = await response.json();
-      setMessage("Weather data submitted successfully!");
+      setSuccessMessage("Weather data submitted successfully!");
       console.log("Server Response:", result);
+
+      // Reset the form fields
       setFormData({
         email: "",
         name: "",
         precipTotal: "",
         location: "",
-        picture: "",
+        picture: null,
       });
     } catch (error) {
-      setMessage(`Error: ${error.message}`);
+      setSuccessMessage(`Error: ${error.message}`);
     }
   };
 
+  const setSuccessMessage = (message) => {
+    setMessage(message);
+
+    // Reset the message after 5 seconds
+    setTimeout(() => {
+      setMessage("");
+    }, 5000);
+  };
+
   return (
-    <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-lg">
+    <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-lg ">
+      <div className="flex justify-center items-center pb-8">
+        <img
+          src={stormcenter_logo}
+          alt="Weather"
+          className="w-[300px] h-auto"
+        />
+      </div>
       <h2 className="text-3xl font-semibold text-center mb-6 text-gray-800">
         Post Weather Data
       </h2>
@@ -128,14 +189,14 @@ const WeatherInputForm = () => {
             htmlFor="picture"
             className="text-sm font-medium text-gray-700"
           >
-            Picture URL (optional)
+            Upload Picture (optional)
           </label>
           <input
-            type="text"
+            type="file"
             name="picture"
             id="picture"
-            value={formData.picture}
-            onChange={handleChange}
+            accept="image/*"
+            onChange={handleImageChange}
             className="p-3 border rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>

@@ -18,11 +18,11 @@ datasource db {
 
 model WeatherInput {
   id          Int      @id @default(autoincrement())
-  email       String  
+  email       String
   name        String
   precipTotal Float    @map("precip_total")
   location    String
-  picture     Bytes?
+  picturePath String?
   enteredAt   DateTime @default(now()) @map("entered_at")
 
   @@map("weather_input")

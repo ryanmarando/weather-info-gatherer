@@ -95,34 +95,36 @@ const DateMapComponent = ({ onDateRangeChange }) => {
   };
 
   return (
-    <div>
-      <h1>Select Date Range</h1>
+    <div className="p-6 bg-white rounded-lg shadow-md flex flex-col space-y-4">
+      <h1 className="text-xl font-semibold">Select Date Range</h1>
 
-      <label>
-        Start Date:
-        <input
-          type="date"
-          onChange={handleStartDateChange}
-          value={startDate ? startDate.toISOString().split("T")[0] : ""}
-        />
-      </label>
+      <div className="flex flex-col space-y-4">
+        <label className="flex flex-col">
+          <span className="text-sm font-medium">Start Date:</span>
+          <input
+            type="date"
+            onChange={handleStartDateChange}
+            value={startDate ? startDate.toISOString().split("T")[0] : ""}
+            className="mt-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </label>
 
-      <label>
-        End Date:
-        <input
-          type="date"
-          onChange={handleEndDateChange}
-          value={endDate ? endDate.toISOString().split("T")[0] : ""}
-        />
-      </label>
-
-      <div>
-        {formattedStartDate && formattedEndDate && (
-          <h3>
-            Selected Date Range: {formattedStartDate} to {formattedEndDate}
-          </h3>
-        )}
+        <label className="flex flex-col">
+          <span className="text-sm font-medium">End Date:</span>
+          <input
+            type="date"
+            onChange={handleEndDateChange}
+            value={endDate ? endDate.toISOString().split("T")[0] : ""}
+            className="mt-1 px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </label>
       </div>
+
+      {formattedStartDate && formattedEndDate && (
+        <h3 className="text-sm text-gray-700">
+          Selected Date Range: {formattedStartDate} to {formattedEndDate}
+        </h3>
+      )}
     </div>
   );
 };

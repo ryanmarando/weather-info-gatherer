@@ -4,6 +4,7 @@ import CountySelector from "./components/CountySelector";
 import WeatherInputs from "./components/WeatherInputs";
 import { baseURL } from "./config";
 import Papa from "papaparse"; // Import PapaParse
+import stormcenter_logo from "./images/stormcenter_logo.png";
 
 function App() {
   const [data, setData] = useState([]);
@@ -145,12 +146,40 @@ function App() {
     }
   };
 
+  const onEdit = async (id, updatedData) => {
+    try {
+      const response = await fetch(`${baseURL}/editWeatherInput/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(updatedData),
+      });
+      if (response.ok) {
+        // Refresh the data or update the state
+        console.log("Data updated successfully");
+        alert("Updated data please re-sumbit to see changes");
+      } else {
+        console.error("Failed to update data");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
   if (error) {
     return <div className="text-red-600 text-lg">{error}</div>;
   }
 
   return (
     <div className="min-h-screen bg-gray-100 p-8">
+      <div className="flex justify-center items-center pb-8">
+        <img
+          src={stormcenter_logo}
+          alt="Weather"
+          className="w-[300px] h-auto"
+        />
+      </div>
       <h1 className="text-4xl font-semibold text-center mb-6">
         Weather Data Admin
       </h1>
@@ -158,25 +187,27 @@ function App() {
       <div className="mb-6 text-center">
         <button
           onClick={getAllWeatherInput}
-          className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition w-full max-w-md mx-auto"
+          className="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-600 transition w-full max-w-md mx-auto"
         >
           Get All Data
         </button>
       </div>
 
       {/* Centered Date Range and County Selector */}
-      <div className="flex justify-center mb-6">
-        <div className="w-full max-w-md">
+      <div className="flex justify-between gap-6 mb-6 w-full max-w-7xl mx-auto">
+        <div className="flex-1 p-6 bg-white rounded-lg shadow-md">
           <div className="mb-6">
             <DateMapComponent onDateRangeChange={handleDateRangeChange} />
             <button
               onClick={submitDateRangeData}
-              className="mt-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition w-full"
+              className="mt-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-600 transition w-full"
             >
               Get Weather Data For Range Only
             </button>
           </div>
+        </div>
 
+        <div className="flex-1 p-6 bg-white rounded-lg shadow-md">
           <div className="mb-6">
             <h2 className="text-xl font-semibold mb-2">Select Counties</h2>
             <CountySelector
@@ -184,29 +215,30 @@ function App() {
             />
             <button
               onClick={submitDataLocation}
-              className="mt-4 bg-teal-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-teal-600 transition w-full"
+              className="mt-4 bg-teal-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-teal-600 transition w-full"
             >
               Get Weather Data For Location Only
-            </button>
-          </div>
-
-          <div className="mb-6">
-            <button
-              onClick={submitDataLocationAndTime}
-              className="mt-4 bg-yellow-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-yellow-600 transition w-full"
-            >
-              Get Weather Data For Selected Location and Dates
             </button>
           </div>
         </div>
       </div>
 
       <h3 className="text-xl mb-4 text-center">
-        Showing Data for locations {selectedCounties.join(", ")} during{" "}
+        Data Query for locations {selectedCounties.join(", ")} during{" "}
         {dateRange.startDate} to {dateRange.endDate}
       </h3>
 
-      <WeatherInputs data={data} onDelete={handleDelete} />
+      {/* The Last Button Below the Two Boxes */}
+      <div className="mb-6 text-center">
+        <button
+          onClick={submitDataLocationAndTime}
+          className="bg-yellow-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-yellow-600 transition w-full max-w-md mx-auto"
+        >
+          Get Weather Data For Selected Location and Dates
+        </button>
+      </div>
+
+      <WeatherInputs data={data} onDelete={handleDelete} onEdit={onEdit} />
 
       <div className="mt-4 flex justify-between px-6">
         {data.length > 0 && (

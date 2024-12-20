@@ -2,12 +2,15 @@ import express from "express";
 import { Request, Response, NextFunction } from "express";
 import { PrismaClient } from "@prisma/client";
 import cors from "cors";
+import bodyParser from "body-parser";
 
 const prisma = new PrismaClient();
 const app = express();
 const port = 3000;
 
 app.use(express.json());
+app.use(bodyParser.json({ limit: "100mb" })); // Adjust "10mb" as needed
+app.use(bodyParser.urlencoded({ limit: "100mb", extended: true }));
 app.use(cors());
 
 app.get("/", (req, res) => {
@@ -16,10 +19,25 @@ app.get("/", (req, res) => {
 
 app.get("/getAllWeatherInputs", async (req, res) => {
   try {
-    const weather_inputs = await prisma.weatherInput.findMany();
-    console.log("Successful GET of all weather inputs");
-    res.json(weather_inputs);
+    const weather_inputs = await prisma.weatherInput.findMany({
+      orderBy: {
+        enteredAt: "desc", // Assuming enteredAt is the field that determines the order of inputs
+      },
+      take: 50, // Limit the results to the last 50 items
+    });
+
+    // Format the response to include base64 image data
+    const formattedInputs = weather_inputs.map((input) => ({
+      ...input,
+      picture: input.picture
+        ? `data:image/jpeg;base64,${input.picture.toString()}` // Corrected to call toString without arguments
+        : null,
+    }));
+
+    console.log("Successful GET of last 50 weather inputs");
+    res.json(formattedInputs);
   } catch (error) {
+    console.error("Error fetching weather inputs:", error);
     res.status(500).json({ error: "Error fetching weather inputs." });
   }
 });
@@ -137,7 +155,7 @@ app.post("/createWeatherInput", async (req: any, res: any) => {
         name: name,
         precipTotal: parseFloat(precipTotal),
         location: location,
-        picture: picture,
+        picture: picture ? Buffer.from(picture, "base64") : null,
       },
     });
     console.log("Successful POST of Id:", weather_input.id);
@@ -166,6 +184,39 @@ app.delete("/deleteWeatherInput/:id", async (req: any, res: any) => {
   }
   console.error("Error deleting weather input:", Error);
   return res.status(500).json({ error: "Internal server error." });
+});
+
+app.patch("/editWeatherInput/:id", async (req: any, res: any) => {
+  const userId = parseInt(req.params.id);
+  const { email, name, precipTotal, location, picture } = req.body;
+  if (!email && !name && !precipTotal && !location) {
+    return res.status(400).json({ error: "No new data." });
+  }
+  const updateData: any = {};
+  if (email !== undefined) updateData.email = email;
+  if (name !== undefined) updateData.name = name;
+  if (precipTotal !== undefined)
+    updateData.precipTotal = parseFloat(precipTotal);
+  if (location !== undefined) updateData.location = location;
+
+  try {
+    const updatedWeatherInput = await prisma.weatherInput.update({
+      where: { id: userId },
+      data: {
+        email: email,
+        name: name,
+        precipTotal: precipTotal,
+        location: location,
+      },
+    });
+    console.log("Successful PATCH of input:", updatedWeatherInput);
+    return res.status(200).json({ updatedWeatherInput });
+  } catch (error) {
+    console.log("Unsuccessful PATCH for Id:", userId);
+    res.status(404).json({
+      error: `Unsuccesful PATCH User Error.`,
+    });
+  }
 });
 
 app.listen(port, "0.0.0.0", () => {

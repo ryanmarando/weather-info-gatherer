@@ -35,15 +35,17 @@ const CountySelector = ({ onSelectedCountiesChange }) => {
   };
 
   return (
-    <div>
-      <label htmlFor="county-select">Select Counties with Control Click:</label>
+    <div className="p-6 bg-white rounded-lg shadow-md flex flex-col space-y-4">
+      <label htmlFor="county-select" className="text-lg font-semibold mb-2">
+        Select Counties with Control Click:
+      </label>
       <select
         id="county-select"
         multiple
         value={selectedCounties}
         onChange={handleSelectChange}
         size={5} // Adjust size of dropdown
-        style={{ width: "300px", height: "150px" }} // Style for multi-select
+        className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 w-full h-40"
       >
         {counties.map((county, index) => (
           <option key={index} value={county}>
