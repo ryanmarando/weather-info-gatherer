@@ -72,10 +72,10 @@ const WeatherInputs = ({ data, onDelete, onEdit }) => {
               </p>
             </div>
           )}
-          {input.picture && (
+          {input.picturePath && (
             <div style={styles.imageContainer}>
               <img
-                src={input.picture}
+                src={input.picturePath}
                 alt={`${input.location} weather`}
                 style={styles.image}
               />

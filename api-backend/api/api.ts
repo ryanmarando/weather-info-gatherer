@@ -3,10 +3,45 @@ import { Request, Response, NextFunction } from "express";
 import { PrismaClient } from "@prisma/client";
 import cors from "cors";
 import bodyParser from "body-parser";
+import multer from "multer";
+import {
+  S3Client,
+  PutObjectCommand,
+  GetObjectCommand,
+} from "@aws-sdk/client-s3";
+import dotenv from "dotenv";
+import crypto from "crypto";
+import {
+  getSignedUrl,
+  S3RequestPresigner,
+} from "@aws-sdk/s3-request-presigner";
+
+dotenv.config();
+
+const bucketName = process.env.BUCKET_NAME;
+const bucketRegion = process.env.BUCKET_REGION;
+const accessKey = process.env.ACCESS_KEY;
+const secretAccessKey = process.env.SECRET_ACCESS_KEY;
+
+const s3 = new S3Client({
+  credentials: {
+    accessKeyId: String(accessKey),
+    secretAccessKey: String(secretAccessKey),
+  },
+  region: bucketRegion,
+});
+
+const randomImageName = (bytes = 32) =>
+  crypto.randomBytes(bytes).toString("hex");
 
 const prisma = new PrismaClient();
 const app = express();
 const port = 3000;
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage: storage });
+
+upload.single("image");
 
 app.use(express.json());
 app.use(bodyParser.json({ limit: "100mb" })); // Adjust "10mb" as needed
@@ -25,17 +60,33 @@ app.get("/getAllWeatherInputs", async (req, res) => {
       },
       take: 50, // Limit the results to the last 50 items
     });
-
-    // Format the response to include base64 image data
-    const formattedInputs = weather_inputs.map((input) => ({
-      ...input,
-      picture: input.picture
-        ? `data:image/jpeg;base64,${input.picture.toString()}` // Corrected to call toString without arguments
-        : null,
-    }));
+    for (const weather_post of weather_inputs) {
+      if (weather_post.picturePath) {
+        try {
+          const getObjectParams = {
+            Bucket: bucketName,
+            Key: weather_post.picturePath,
+          };
+          const command = new GetObjectCommand(getObjectParams);
+          const url = await getSignedUrl(s3, command, { expiresIn: 3600 });
+          weather_post.picturePath = url;
+        } catch (err) {
+          console.error(
+            `Error generating signed URL for picturePath: ${weather_post.picturePath}`,
+            err
+          );
+          weather_post.picturePath = null; // Fallback in case of error
+        }
+      } else {
+        console.warn(
+          `Missing picturePath for weather_post with ID: ${weather_post.id}`
+        );
+        weather_post.picturePath = null; // Handle cases where picturePath is missing
+      }
+    }
 
     console.log("Successful GET of last 50 weather inputs");
-    res.json(formattedInputs);
+    res.json(weather_inputs);
   } catch (error) {
     console.error("Error fetching weather inputs:", error);
     res.status(500).json({ error: "Error fetching weather inputs." });
@@ -141,33 +192,63 @@ const parseUserDataByTimeStamp = async (startTime: string, endTime: string) => {
   return weather_input;
 };
 
-app.post("/createWeatherInput", async (req: any, res: any) => {
-  const { email, name, precipTotal, location, picture } = req.body;
-  if (!email || !name || !precipTotal || !location) {
-    return res
-      .status(400)
-      .json({ error: "All fields required expect pictures." });
+app.post(
+  "/createWeatherInput",
+  upload.single("image"), // Ensure "image" matches the input name in the front-end
+  async (req: any, res: any) => {
+    try {
+      const { email, name, precipTotal, location } = req.body;
+
+      if (!email || !name || !precipTotal || !location) {
+        return res
+          .status(400)
+          .json({ error: "All fields required except pictures." });
+      }
+      if (req.file) {
+        const imageName = randomImageName();
+        const params = {
+          Bucket: bucketName,
+          Key: imageName,
+          Body: req.file.buffer,
+          ContentType: req.file.mimetype,
+        };
+        const command = new PutObjectCommand(params);
+        await s3.send(command);
+
+        console.log("File uploaded to S3:", req.file.originalname);
+        const weather_input = await prisma.weatherInput.create({
+          data: {
+            email: email,
+            name: name,
+            precipTotal: parseFloat(precipTotal),
+            location: location,
+            picturePath: imageName,
+          },
+        });
+        console.log("Successful Image POST of Id:", weather_input.id);
+        return res.status(201).json(weather_input);
+      } else {
+        console.log("No image uploaded, skipping S3 upload.");
+      }
+
+      const weather_input = await prisma.weatherInput.create({
+        data: {
+          email: email,
+          name: name,
+          precipTotal: parseFloat(precipTotal),
+          location: location,
+        },
+      });
+      console.log("Successful POST of Id:", weather_input.id);
+      res.status(201).json(weather_input);
+    } catch (error) {
+      console.error("Error:", error);
+      res.status(500).json({
+        error: "Unsuccessful POST User Error.",
+      });
+    }
   }
-  try {
-    const weather_input = await prisma.weatherInput.create({
-      data: {
-        email: email,
-        name: name,
-        precipTotal: parseFloat(precipTotal),
-        location: location,
-        picture: picture ? Buffer.from(picture, "base64") : null,
-      },
-    });
-    console.log("Successful POST of Id:", weather_input.id);
-    res.status(201).json(weather_input);
-  } catch (error) {
-    console.log(`Unsuccessful POST Of Weather Input`);
-    res.status(404).json({
-      error: `Unsuccesful POST User Error.`,
-    });
-    return;
-  }
-});
+);
 
 app.delete("/deleteWeatherInput/:id", async (req: any, res: any) => {
   const userId = parseInt(req.params.id);

@@ -9,8 +9,8 @@ const WeatherInputForm = () => {
     name: "",
     precipTotal: "",
     location: "",
-    picture: null, // Store the base64-encoded picture
   });
+  const [picture, setPicture] = useState(null); // Separate state for the picture
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -20,46 +20,10 @@ const WeatherInputForm = () => {
     }));
   };
 
-  const resizeImage = (file, maxWidth, maxHeight) => {
-    return new Promise((resolve, reject) => {
-      const img = new Image();
-      const canvas = document.createElement("canvas");
-      const ctx = canvas.getContext("2d");
-
-      img.onload = () => {
-        let { width, height } = img;
-
-        if (width > maxWidth || height > maxHeight) {
-          const scalingFactor = Math.min(maxWidth / width, maxHeight / height);
-          width = width * scalingFactor;
-          height = height * scalingFactor;
-        }
-
-        canvas.width = width;
-        canvas.height = height;
-        ctx.drawImage(img, 0, 0, width, height);
-
-        canvas.toBlob((blob) => resolve(blob), file.type);
-      };
-
-      img.onerror = reject;
-      img.src = URL.createObjectURL(file);
-    });
-  };
-
-  // Example usage in handleImageChange
-  const handleImageChange = async (e) => {
+  const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const resizedImage = await resizeImage(file, 800, 800); // Resize to 800x800
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData((prevData) => ({
-          ...prevData,
-          picture: reader.result.split(",")[1], // Extract base64 string
-        }));
-      };
-      reader.readAsDataURL(resizedImage);
+      setPicture(file);
     }
   };
 
@@ -67,12 +31,19 @@ const WeatherInputForm = () => {
     e.preventDefault();
 
     try {
+      const data = new FormData();
+      data.append("email", formData.email);
+      data.append("name", formData.name);
+      data.append("precipTotal", formData.precipTotal);
+      data.append("location", formData.location);
+
+      if (picture) {
+        data.append("image", picture); // Correct name to match back-end
+      }
+
       const response = await fetch(baseURL + "/createWeatherInput", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData), // Send JSON including base64 picture
+        body: data,
       });
 
       if (!response.ok) {
@@ -89,8 +60,8 @@ const WeatherInputForm = () => {
         name: "",
         precipTotal: "",
         location: "",
-        picture: null,
       });
+      setPicture(null);
     } catch (error) {
       setSuccessMessage(`Error: ${error.message}`);
     }
@@ -106,7 +77,7 @@ const WeatherInputForm = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-lg ">
+    <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-lg">
       <div className="flex justify-center items-center pb-8">
         <img
           src={stormcenter_logo}
@@ -193,7 +164,7 @@ const WeatherInputForm = () => {
           </label>
           <input
             type="file"
-            name="picture"
+            name="image"
             id="picture"
             accept="image/*"
             onChange={handleImageChange}
