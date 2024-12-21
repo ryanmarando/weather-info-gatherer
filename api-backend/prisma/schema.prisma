@@ -23,6 +23,7 @@ model WeatherInput {
   precipTotal Float    @map("precip_total")
   location    String
   picturePath String?
+  videoPath   String?
   enteredAt   DateTime @default(now()) @map("entered_at")
 
   @@map("weather_input")

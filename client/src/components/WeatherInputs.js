@@ -1,6 +1,14 @@
 import React, { useState } from "react";
+import { baseURL } from "../config";
 
-const WeatherInputs = ({ data, onDelete, onEdit }) => {
+const WeatherInputs = ({
+  data,
+  onDelete,
+  onEdit,
+  locationQuery,
+  timeStampStartQuery,
+  timeStampEndQuery,
+}) => {
   const [editingId, setEditingId] = useState(null); // Tracks which item is being edited
   const [editValues, setEditValues] = useState({}); // Stores temporary input values during editing
 
@@ -73,12 +81,27 @@ const WeatherInputs = ({ data, onDelete, onEdit }) => {
             </div>
           )}
           {input.picturePath && (
-            <div style={styles.imageContainer}>
+            <div style={styles.mediaContainer}>
               <img
                 src={input.picturePath}
                 alt={`${input.location} weather`}
-                style={styles.image}
+                style={styles.media}
               />
+            </div>
+          )}
+          {input.videoPath && (
+            <div style={styles.mediaContainer}>
+              <video
+                controls
+                style={styles.media}
+                src={input.videoPath} // S3 URL for video
+                poster="https://via.placeholder.com/300x200.png?text=Loading+Video..."
+                onError={() =>
+                  console.error(`Error loading video: ${input.videoPath}`)
+                }
+              >
+                Your browser does not support the video tag.
+              </video>
             </div>
           )}
           <button
@@ -117,10 +140,10 @@ const styles = {
   info: {
     marginBottom: "10px",
   },
-  imageContainer: {
+  mediaContainer: {
     margin: "10px 0",
   },
-  image: {
+  media: {
     width: "100%",
     height: "auto",
     borderRadius: "5px",

@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ffmpeg/core": "^0.12.6",
+    "@ffmpeg/ffmpeg": "^0.12.10",
     "@vercel/analytics": "^1.4.1",
     "cra-template": "1.2.0",
     "papaparse": "^5.4.1",
