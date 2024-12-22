@@ -29,15 +29,15 @@ const logRequest = (req: Request, res: Response, next: NextFunction) => {
         case "POST":
             console.log(`POST to ${req.path}`);
             next();
-            return;
+            break;
         case "DELETE":
             console.log(`DELETE to ${req.path}`);
             next();
-            return;
+            break;
         case "PATCH":
             console.log(`PATCH to ${req.path}`);
             next();
-            return;
+            break;
     }
 };
 

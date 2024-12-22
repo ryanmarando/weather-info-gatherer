@@ -39,9 +39,10 @@ const WeatherInputForm = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
+
         setFormData((prevData) => ({
             ...prevData,
-            [name]: value,
+            [name]: name === "precipTotal" ? parseFloat(value) || "" : value, // Convert precipTotal to float
         }));
     };
 
@@ -63,12 +64,27 @@ const WeatherInputForm = () => {
         e.preventDefault();
         setLoading(true);
 
+        // Front-end validation before sending the request
+        if (!formData.email || !formData.name || !formData.location) {
+            setMessage("All fields except pictures or videos are required.");
+            setLoading(false);
+            return;
+        }
+
+        if (!formData.precipTotal || isNaN(parseFloat(formData.precipTotal))) {
+            setMessage("Precipitation total must be a valid positive number.");
+            setLoading(false);
+            return;
+        }
+
         try {
             const data = new FormData();
             data.append("email", formData.email);
             data.append("name", formData.name);
-            data.append("precipTotal", formData.precipTotal);
+            data.append("precipTotal", parseFloat(formData.precipTotal)); // Ensure it's a number
             data.append("location", formData.location);
+
+            console.log([...data.entries()]);
 
             if (picture) {
                 data.append("image", picture); // Match the back-end name for images
@@ -84,7 +100,10 @@ const WeatherInputForm = () => {
             });
 
             if (!response.ok) {
-                throw new Error("Failed to submit data");
+                const errorData = await response.json();
+                throw new Error(
+                    errorData.errors?.[0]?.message || "Failed to submit data"
+                );
             }
 
             const result = await response.json();

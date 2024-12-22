@@ -1,7 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import { S3Client } from "@aws-sdk/client-s3";
 import dotenv from "dotenv";
-import multer from "multer";
+
 
 export const prisma = new PrismaClient();
 
@@ -20,7 +20,3 @@ export const s3 = new S3Client({
     region: bucketRegion,
 });
 
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
-
-upload.single("image");
