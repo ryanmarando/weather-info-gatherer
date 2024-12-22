@@ -1,13 +1,6 @@
 import React, { useState } from "react";
 
-const WeatherInputs = ({
-    data,
-    onDelete,
-    onEdit,
-    locationQuery,
-    timeStampStartQuery,
-    timeStampEndQuery,
-}) => {
+const WeatherInputs = ({ data, onDelete, onEdit }) => {
     const [editingId, setEditingId] = useState(null); // Tracks which item is being edited
     const [editValues, setEditValues] = useState({}); // Stores temporary input values during editing
 

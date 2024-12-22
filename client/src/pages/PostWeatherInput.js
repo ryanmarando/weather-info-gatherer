@@ -78,7 +78,7 @@ const WeatherInputForm = () => {
                 data.append("video", video); // Match the back-end name for videos
             }
 
-            const response = await fetch(baseURL + "/createWeatherInput", {
+            const response = await fetch(baseURL + "/inputs", {
                 method: "POST",
                 body: data,
             });

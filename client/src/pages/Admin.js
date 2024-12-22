@@ -20,7 +20,7 @@ function App() {
 
     const getAllWeatherInput = async () => {
         try {
-            const response = await fetch(baseURL + "/getAllWeatherInputs");
+            const response = await fetch(baseURL + "/inputs");
             const data = await response.json();
             setData(data);
         } catch (error) {
@@ -72,7 +72,7 @@ function App() {
         try {
             const response = await fetch(
                 baseURL +
-                    "/getWeatherInput?startTime=" +
+                    "/inputs?startTime=" +
                     dateRange.startDate +
                     "&endTime=" +
                     dateRange.endDate
@@ -99,7 +99,7 @@ function App() {
         setlocationQuery(selectedCountiesString);
         try {
             const response = await fetch(
-                baseURL + "/getWeatherInput?location=" + selectedCountiesString
+                baseURL + "/inputs?location=" + selectedCountiesString
             );
             if (!response.ok) {
                 alert("No data found in those locations");
@@ -121,7 +121,7 @@ function App() {
         try {
             const response = await fetch(
                 baseURL +
-                    "/getWeatherInput?location=" +
+                    "/inputs?location=" +
                     selectedCountiesString +
                     "&startTime=" +
                     dateRange.startDate +
@@ -141,12 +141,9 @@ function App() {
 
     const handleDelete = async (id) => {
         try {
-            const response = await fetch(
-                `${baseURL}/deleteWeatherInput/${id}`,
-                {
-                    method: "DELETE",
-                }
-            );
+            const response = await fetch(`${baseURL}/inputs/${id}`, {
+                method: "DELETE",
+            });
 
             if (response.ok) {
                 setData((prevData) =>
@@ -165,7 +162,7 @@ function App() {
 
     const onEdit = async (id, updatedData) => {
         try {
-            const response = await fetch(`${baseURL}/editWeatherInput/${id}`, {
+            const response = await fetch(`${baseURL}/inputs/${id}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
