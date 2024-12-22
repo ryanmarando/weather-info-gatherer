@@ -16,6 +16,7 @@ function App() {
     const [locationQuery, setlocationQuery] = useState("");
     const [timeStampStartQuery, setTimeStartStampQuery] = useState("");
     const [timeStampEndQuery, setTimeStampEndQuery] = useState("");
+    const [admin, setAdmin] = useState(null);
 
     const getAllWeatherInput = async () => {
         try {
@@ -183,9 +184,10 @@ function App() {
         }
     };
 
-    const handleLoginSubmitted = (isSubmitted) => {
+    const handleLoginSubmitted = (isSubmitted, admin) => {
+        setIsAdmin(true);
         if (isSubmitted) {
-            setIsAdmin(true);
+            setAdmin(admin);
         }
     };
 
@@ -205,7 +207,7 @@ function App() {
                         />
                     </div>
                     <h1 className="text-4xl font-semibold text-center mb-6">
-                        Weather Data Admin
+                        Welcome, {admin.name}
                     </h1>
 
                     <div className="mb-6 text-center">

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { baseURL } from "../config";
 import stormcenter_logo from "../images/stormcenter_logo.png";
 
 const LoginPage = ({ onSubmit }) => {
@@ -7,7 +8,22 @@ const LoginPage = ({ onSubmit }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSubmit(true); // fake submit action, passes true to parent
+        getAdmin();
+    };
+
+    const getAdmin = async () => {
+        try {
+            const response = await fetch(baseURL + "/getAdminUser/" + email);
+            const data = await response.json();
+            if (password === data.password) {
+                onSubmit(true, data);
+            } else {
+                alert("Invalid credentials...");
+                return;
+            }
+        } catch (error) {
+            alert("Invalid credentials...");
+        }
     };
 
     return (
