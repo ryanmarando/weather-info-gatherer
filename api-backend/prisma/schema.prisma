@@ -20,7 +20,7 @@ model WeatherInput {
   id          Int      @id @default(autoincrement())
   email       String
   name        String
-  precipTotal Float    @map("precip_total")
+  precipTotal Float?   @default(0.0) @map("precip_total")
   location    String
   picturePath String?
   videoPath   String?
