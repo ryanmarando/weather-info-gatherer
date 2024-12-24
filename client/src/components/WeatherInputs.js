@@ -1,29 +1,41 @@
 import React, { useState } from "react";
 
 const WeatherInputs = ({ data, onDelete, onEdit }) => {
-    const [editingId, setEditingId] = useState(null); // Tracks which item is being edited
-    const [editValues, setEditValues] = useState({}); // Stores temporary input values during editing
+    const [editingId, setEditingId] = useState(null);
+    const [editValues, setEditValues] = useState({});
 
     const handleEditClick = (input) => {
-        setEditingId(input.id);
-        setEditValues({
-            location: input.location,
-            precipTotal: input.precipTotal,
-            name: input.name,
-            email: input.email,
-        });
+        if (editingId === input.id) {
+            // Submit the changes
+            handleEditSubmit(input.id);
+        } else {
+            // Enter edit mode
+            setEditingId(input.id);
+            setEditValues({
+                location: input.location,
+                precipTotal: input.precipTotal,
+                name: input.name,
+                email: input.email,
+                showsDamage: input.showsDamage,
+            });
+        }
     };
 
     const handleInputChange = (e) => {
-        const { name, value } = e.target;
-        setEditValues((prev) => ({ ...prev, [name]: value }));
+        const { name, value, type, checked } = e.target;
+        setEditValues((prev) => ({
+            ...prev,
+            [name]: type === "checkbox" ? checked : value,
+        }));
     };
 
-    const handleEditSubmit = async (e, id) => {
-        if (e.key === "Enter") {
-            await onEdit(id, editValues); // Call the edit function
-            setEditingId(null); // Exit editing mode
-        }
+    const handleEditSubmit = async (id) => {
+        await onEdit(id, editValues);
+        data.map((item) =>
+            item.id === id ? { ...item, ...editValues } : item
+        );
+        setEditingId(null);
+        setEditValues({});
     };
 
     return (
@@ -36,30 +48,36 @@ const WeatherInputs = ({ data, onDelete, onEdit }) => {
                                 name="location"
                                 value={editValues.location}
                                 onChange={handleInputChange}
-                                onKeyDown={(e) => handleEditSubmit(e, input.id)}
                                 style={styles.input}
                             />
                             <input
                                 name="precipTotal"
                                 value={editValues.precipTotal}
                                 onChange={handleInputChange}
-                                onKeyDown={(e) => handleEditSubmit(e, input.id)}
                                 style={styles.input}
                             />
                             <input
                                 name="name"
                                 value={editValues.name}
                                 onChange={handleInputChange}
-                                onKeyDown={(e) => handleEditSubmit(e, input.id)}
                                 style={styles.input}
                             />
                             <input
                                 name="email"
                                 value={editValues.email}
                                 onChange={handleInputChange}
-                                onKeyDown={(e) => handleEditSubmit(e, input.id)}
                                 style={styles.input}
                             />
+                            <label style={styles.checkboxLabel}>
+                                <input
+                                    type="checkbox"
+                                    name="showsDamage"
+                                    checked={editValues.showsDamage || false}
+                                    onChange={handleInputChange}
+                                    style={styles.checkbox}
+                                />
+                                Shows Damage
+                            </label>
                         </div>
                     ) : (
                         <div style={styles.info}>
@@ -70,6 +88,9 @@ const WeatherInputs = ({ data, onDelete, onEdit }) => {
                             <p>Reported precipitation: {input.precipTotal}"</p>
                             <p>
                                 By: {input.name} / {input.email}
+                            </p>
+                            <p>
+                                Shows Damage: {input.showsDamage ? "Yes" : "No"}
                             </p>
                         </div>
                     )}
@@ -103,7 +124,7 @@ const WeatherInputs = ({ data, onDelete, onEdit }) => {
                         style={styles.editButton}
                         onClick={() => handleEditClick(input)}
                     >
-                        {editingId === input.id ? "Editing..." : "Edit"}
+                        {editingId === input.id ? "Submit" : "Edit"}
                     </button>
                     <button
                         style={styles.deleteButton}
@@ -149,6 +170,14 @@ const styles = {
         border: "1px solid #ccc",
         borderRadius: "5px",
         width: "100%",
+    },
+    checkboxLabel: {
+        display: "flex",
+        alignItems: "center",
+        marginTop: "5px",
+    },
+    checkbox: {
+        marginRight: "10px",
     },
     editButton: {
         backgroundColor: "#3498db",

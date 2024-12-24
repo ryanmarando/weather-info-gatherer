@@ -10,6 +10,7 @@ const WeatherInputForm = () => {
         name: "",
         precipTotal: "",
         location: "",
+        showsDamage: false,
     });
     const [picture, setPicture] = useState(null);
     const [video, setVideo] = useState(null);
@@ -38,11 +39,16 @@ const WeatherInputForm = () => {
     ];
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const { name, value, type, checked } = e.target;
 
         setFormData((prevData) => ({
             ...prevData,
-            [name]: name === "precipTotal" ? parseFloat(value) || "" : value, // Convert precipTotal to float
+            [name]:
+                type === "checkbox"
+                    ? checked
+                    : name === "precipTotal"
+                    ? parseFloat(value) || ""
+                    : value, // Handle checkbox input
         }));
     };
 
@@ -81,8 +87,9 @@ const WeatherInputForm = () => {
             const data = new FormData();
             data.append("email", formData.email);
             data.append("name", formData.name);
-            data.append("precipTotal", parseFloat(formData.precipTotal)); // Ensure it's a number
+            data.append("precipTotal", parseFloat(formData.precipTotal));
             data.append("location", formData.location);
+            data.append("showsDamage", formData.showsDamage);
 
             console.log([...data.entries()]);
 
@@ -116,6 +123,7 @@ const WeatherInputForm = () => {
                 name: "",
                 precipTotal: "",
                 location: "",
+                showsDamage: false,
             });
             setPicture(null);
             setVideo(null);
@@ -138,7 +146,7 @@ const WeatherInputForm = () => {
     };
 
     return (
-        <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-lg mt-12">
+        <div className="max-w-lg mx-auto p-6 bg-white rounded-lg shadow-lg">
             <div className="flex justify-center items-center pb-8">
                 <img
                     src={stormcenter_logo}
@@ -263,6 +271,23 @@ const WeatherInputForm = () => {
                         onChange={handleVideoChange}
                         className="p-3 border rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         ref={videoInputRef}
+                    />
+                </div>
+
+                <div className="flex flex-col space-y-2">
+                    <label
+                        htmlFor="showsDamage"
+                        className="text-sm font-medium text-gray-700"
+                    >
+                        Do these images/videos show damage? (optional)
+                    </label>
+                    <input
+                        type="checkbox"
+                        name="showsDamage"
+                        id="showsDamage"
+                        checked={formData.showsDamage}
+                        onChange={handleChange}
+                        className="h-5 w-5 text-blue-500 focus:ring-blue-500 border-gray-300 rounded"
                     />
                 </div>
 
