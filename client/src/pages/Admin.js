@@ -2,6 +2,7 @@ import React, { useCallback, useState } from "react";
 import DateMapComponent from "../components/DateMapComponent";
 import CountySelector from "../components/CountySelector";
 import WeatherInputs from "../components/WeatherInputs";
+import ChangePasswordModal from "../components/ChangePasswordModal";
 import LoginPage from "../components/LoginPage";
 import { baseURL } from "../config";
 import Papa from "papaparse";
@@ -20,9 +21,9 @@ function App() {
   const [newAdmin, setNewAdmin] = useState({
     email: "",
     name: "",
-    password: "",
   });
   const [showModal, setShowModal] = useState(false);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 
   const getAllWeatherInput = async () => {
     try {
@@ -185,6 +186,9 @@ function App() {
     if (isSubmitted) {
       setAdmin(admin);
     }
+    if (admin.isNewAccount === true) {
+      setShowChangePasswordModal(true);
+    }
   };
 
   const handleCreateAdmin = async () => {
@@ -197,7 +201,7 @@ function App() {
       if (response.ok) {
         alert("Admin created successfully!");
         setShowModal(false);
-        setNewAdmin({ email: "", name: "", password: "" });
+        setNewAdmin({ email: "", name: "" });
       } else {
         alert("Failed to create admin.");
       }
@@ -211,6 +215,26 @@ function App() {
     setNewAdmin((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handlePasswordChange = async (newPassword) => {
+    try {
+      const response = await fetch(`${baseURL}/admins/${admin.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ password: newPassword, isNewAccount: false }),
+      });
+      if (response.ok) {
+        alert("Password updated successfully.");
+        setShowChangePasswordModal(false);
+      } else {
+        alert("Failed to update password.");
+      }
+    } catch (error) {
+      console.error("Error updating password:", error);
+    }
+  };
+
   if (error) {
     return <div className="text-red-600 text-lg">{error}</div>;
   }
@@ -219,6 +243,12 @@ function App() {
     <div>
       {isAdmin ? (
         <div className="min-h-screen bg-gray-100 p-8">
+          {showChangePasswordModal && (
+            <ChangePasswordModal
+              onClose={() => setShowChangePasswordModal(false)}
+              onSave={handlePasswordChange}
+            />
+          )}
           {admin?.id === 1 && (
             <div className="absolute top-4 right-4">
               <button
@@ -255,19 +285,6 @@ function App() {
                     type="text"
                     name="name"
                     value={newAdmin.name}
-                    onChange={handleInputChange}
-                    className="w-full px-3 py-2 border rounded-md"
-                    required
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700">
-                    Password
-                  </label>
-                  <input
-                    type="password"
-                    name="password"
-                    value={newAdmin.password}
                     onChange={handleInputChange}
                     className="w-full px-3 py-2 border rounded-md"
                     required

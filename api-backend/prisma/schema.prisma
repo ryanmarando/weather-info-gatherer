@@ -24,17 +24,19 @@ model WeatherInput {
   location    String
   picturePath String?
   videoPath   String?
+  showsDamage Boolean? @default(false)
   enteredAt   DateTime @default(now()) @map("entered_at")
 
   @@map("weather_input")
 }
 
 model Admin {
-  id        Int      @id @default(autoincrement())
-  email     String   @unique
-  name      String
-  password  String
-  createdAt DateTime @default(now()) @map("created_at")
+  id           Int      @id @default(autoincrement())
+  email        String   @unique
+  name         String
+  password     String   @default("password")
+  isNewAccount Boolean? @default(true) @map("is_new_account")
+  createdAt    DateTime @default(now()) @map("created_at")
 
   @@map("admin")
 }

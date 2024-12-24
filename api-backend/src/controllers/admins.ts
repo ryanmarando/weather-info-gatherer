@@ -42,8 +42,8 @@ const getAdminUsers = async (req: Request, res: Response) => {
 
 const createAdminUser = async (req: Request, res: Response) => {
   try {
-    const { email, name, password } = req.body;
-    if (!email || !name || !password) {
+    const { email, name } = req.body;
+    if (!email || !name) {
       res.status(400).json({
         error: "All fields are required.",
       });
@@ -54,7 +54,6 @@ const createAdminUser = async (req: Request, res: Response) => {
       data: {
         email: email,
         name: name,
-        password: password,
       },
     });
     console.log("Successful POST of Admin Id:", adminUser.id);
@@ -85,4 +84,40 @@ const deleteAdminUser = async (req: Request, res: Response) => {
   }
 };
 
-export default { getAdminUsers, deleteAdminUser, createAdminUser };
+const editAdminUser = async (req: Request, res: Response) => {
+  const id = parseInt(req.params.id);
+  const { email, name, password, isNewAccount } = req.body;
+
+  if (!email && !name && !password) {
+    res.status(400).json({ error: "No new data." });
+    return;
+  }
+
+  const updateData: any = {};
+  if (email !== undefined) updateData.email = email;
+  if (name !== undefined) updateData.name = name;
+  if (password !== undefined) updateData.password = password;
+  if (isNewAccount === false) updateData.isNewAccount = false;
+
+  try {
+    const updatedAdminUser = await prisma.admin.update({
+      where: { id: id },
+      data: updateData,
+    });
+    console.log("Successful PATCH of input:", updatedAdminUser);
+    res.status(200).json({ updatedAdminUser });
+    return;
+  } catch (error) {
+    console.log("Unsuccessful PATCH for Id:", id, error);
+    res.status(404).json({
+      error: `Unsuccesful PATCH User Error.`,
+    });
+  }
+};
+
+export default {
+  getAdminUsers,
+  deleteAdminUser,
+  createAdminUser,
+  editAdminUser,
+};

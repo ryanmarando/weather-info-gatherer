@@ -2,17 +2,18 @@ import { NextFunction, Request, Response } from "express";
 import z from "zod";
 
 const InputSchema = z.object({
-  email: z.string().email({ message: "Invalid email address" }),
+  email: z.string().email({ message: "Invalid email address" }).optional(),
   name: z
     .string()
     .min(5, { message: "Name must be at least 5 characters" })
-    .max(50, { message: "Name must be at most 50 characters" }),
+    .max(50, { message: "Name must be at most 50 characters" })
+    .optional(),
 });
 
 const AdminSchema = z.object({
-  email: z.string().email(),
-  name: z.string().min(1),
-  password: z.string().min(4),
+  email: z.string().email().optional(),
+  name: z.string().min(1).optional(),
+  password: z.string().min(8).optional(),
 });
 
 type Input = z.infer<typeof InputSchema>;

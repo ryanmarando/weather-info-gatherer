@@ -12,6 +12,12 @@ router.post(
   validateAdminUser.validateAdminUser,
   adminController.createAdminUser
 );
+router.patch(
+  "/:id",
+  xss,
+  validateAdminUser.validateAdminUser,
+  adminController.editAdminUser
+);
 router.delete("/:id", adminController.deleteAdminUser);
 
 export default router;
