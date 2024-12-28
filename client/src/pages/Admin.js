@@ -396,15 +396,6 @@ function App() {
                         </button>
                     </div>
 
-                    <WeatherInputs
-                        data={data}
-                        onDelete={handleDelete}
-                        onEdit={onEdit}
-                        locationQuery={locationQuery}
-                        timeStampStartQuery={timeStampStartQuery}
-                        timeStampEndQuery={timeStampEndQuery}
-                    />
-
                     <div className="mt-4 flex justify-between px-6">
                         {data.length > 0 && (
                             <>
@@ -436,6 +427,15 @@ function App() {
                             </>
                         )}
                     </div>
+
+                    <WeatherInputs
+                        data={data}
+                        onDelete={handleDelete}
+                        onEdit={onEdit}
+                        locationQuery={locationQuery}
+                        timeStampStartQuery={timeStampStartQuery}
+                        timeStampEndQuery={timeStampEndQuery}
+                    />
                 </div>
             ) : (
                 <LoginPage onSubmit={handleLoginSubmitted} />

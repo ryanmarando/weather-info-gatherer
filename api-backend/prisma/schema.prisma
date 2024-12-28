@@ -22,6 +22,9 @@ model WeatherInput {
   name        String
   precipTotal Float?   @default(0.0) @map("precip_total")
   location    String
+  city        String
+  latitude    Float
+  longitude   Float
   picturePath String?
   videoPath   String?
   showsDamage Boolean? @default(false)

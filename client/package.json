@@ -5,8 +5,10 @@
   "dependencies": {
     "@ffmpeg/core": "^0.12.6",
     "@ffmpeg/ffmpeg": "^0.12.10",
+    "@react-google-maps/api": "^2.20.5",
     "@vercel/analytics": "^1.4.1",
     "cra-template": "1.2.0",
+    "dotenv": "^16.4.7",
     "papaparse": "^5.4.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
