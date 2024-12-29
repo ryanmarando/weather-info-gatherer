@@ -7,6 +7,9 @@
 // npx prisma migrate dev --name ""
 // npx prisma generate
 
+// npx prisma migrate reset
+// npx prisma db seed
+
 generator client {
   provider = "prisma-client-js"
 }
