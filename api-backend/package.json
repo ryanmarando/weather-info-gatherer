@@ -3,8 +3,9 @@
     "version": "1.0.0",
     "main": "src/app.ts",
     "scripts": {
-        "dev": "tsc && node dist/src/app.js",
-        "start": "tsc && nodemon dist/src/app.js",
+        "build": "tsc",
+        "dev": "tsc && node dist/app.js",
+        "start": "node dist/app.js",
         "startapi": "nodemon --files --ext ts,js,json --exec \"node --no-warnings --loader ts-node/esm src/app.ts\""
     },
     "prisma": {
