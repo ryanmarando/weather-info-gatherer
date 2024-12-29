@@ -1,7 +1,6 @@
 node_modules
 # Keep environment variables out of version control
 .env
-dist
 .DS_store
 # Elastic Beanstalk Files
 .elasticbeanstalk/*
