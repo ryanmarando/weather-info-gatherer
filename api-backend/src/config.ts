@@ -19,3 +19,6 @@ export const s3 = new S3Client({
     },
     region: bucketRegion,
 });
+
+export const jwtSecret = process.env.JWT_SECRET;
+export const genericPassword = process.env.GENERIC_PASSWORD;

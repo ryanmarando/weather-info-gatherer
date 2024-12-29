@@ -15,26 +15,26 @@ const router = express.Router();
 
 router.get("/", inputController.getWeatherInputs);
 router.post(
-  "/",
-  upload.fields([
-    { name: "image", maxCount: 1 },
-    { name: "video", maxCount: 1 },
-  ]),
-  xss,
-  validateWeatherInput.validateWeatherInput,
-  processMediaUpload,
-  inputController.createWeatherInput
+    "/",
+    upload.fields([
+        { name: "image", maxCount: 1 },
+        { name: "video", maxCount: 1 },
+    ]),
+    xss,
+    validateWeatherInput.validateWeatherInput,
+    processMediaUpload,
+    inputController.createWeatherInput
 );
 router.delete(
-  "/:id",
-  inputController.deleteWeatherInput,
-  deleteMediaMiddleware
+    "/:id",
+    inputController.deleteWeatherInput,
+    deleteMediaMiddleware
 );
 router.patch(
-  "/:id",
-  xss,
-  validateWeatherInput.validateWeatherInput,
-  inputController.editWeatherInput
+    "/:id",
+    xss,
+    validateWeatherInput.validateWeatherInput,
+    inputController.editWeatherInput
 );
 
 export default router;

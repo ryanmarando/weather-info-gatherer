@@ -215,12 +215,13 @@ const deleteWeatherInput = async (
 
 const editWeatherInput = async (req: Request, res: Response) => {
     const userId = parseInt(req.params.id);
-    const { email, name, precipTotal, location, showsDamage } = req.body;
+    const { email, name, precipTotal, location, city, showsDamage } = req.body;
     if (
         !email &&
         !name &&
         !precipTotal &&
         !location &&
+        !city &&
         showsDamage === undefined
     ) {
         res.status(400).json({ error: "No new data." });
@@ -232,6 +233,7 @@ const editWeatherInput = async (req: Request, res: Response) => {
     if (precipTotal !== undefined)
         updateData.precipTotal = parseFloat(precipTotal);
     if (location !== undefined) updateData.location = location;
+    if (location !== undefined) updateData.city = city;
     if (showsDamage !== undefined) updateData.showsDamage = showsDamage;
 
     try {

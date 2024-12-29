@@ -88,9 +88,6 @@ const WeatherInputForm = () => {
             data.append("city", formData.city);
             data.append("showsDamage", formData.showsDamage);
 
-            console.log([...data.entries()]);
-            console.log("Form submitted with city:", formData.city);
-
             if (picture) {
                 data.append("image", picture); // Match the back-end name for images
             }
@@ -146,7 +143,6 @@ const WeatherInputForm = () => {
 
     const handleOnLoad = (autocomplete) => {
         autocompleteRef.current = autocomplete;
-        console.log("Autocomplete loaded", autocomplete);
     };
 
     const handleOnPlaceChanged = () => {
@@ -258,7 +254,7 @@ const WeatherInputForm = () => {
                                 })
                             }
                             placeholder="Enter city name"
-                            className="p-3 border rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="p-3 border rounded-md border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
                         />
                     </Autocomplete>
                 </div>

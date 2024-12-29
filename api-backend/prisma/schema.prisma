@@ -34,12 +34,19 @@ model WeatherInput {
 }
 
 model Admin {
-  id           Int      @id @default(autoincrement())
-  email        String   @unique
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
   name         String
-  password     String   @default("password")
-  isNewAccount Boolean? @default(true) @map("is_new_account")
-  createdAt    DateTime @default(now()) @map("created_at")
+  isNewAccount Boolean?  @default(true) @map("is_new_account")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  password     Password?
 
   @@map("admin")
+}
+
+model Password {
+  id     Int    @id @default(autoincrement())
+  userId Int    @unique
+  hash   String
+  admin  Admin  @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
