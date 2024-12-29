@@ -55,6 +55,9 @@ function App() {
                 },
             });
             const data = await response.json();
+            if (data.error) {
+                return alert("No data found...");
+            }
             setData(data);
         } catch (error) {
             setError("Error fetching data:" + error.message);
