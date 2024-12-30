@@ -362,7 +362,7 @@ function App() {
     return (
         <div>
             {isAdmin ? (
-                <div className="min-h-screen bg-gray-100 p-8">
+                <div className="min-h-screen bg-gray-100 lg:p-8 p-4">
                     {admin.isNewAccount && showChangePasswordModal && (
                         <ChangePasswordModal
                             onClose={() => setShowChangePasswordModal(false)}
@@ -370,16 +370,16 @@ function App() {
                         />
                     )}
                     {admin?.email === "marandoryan@gmail.com" && (
-                        <div className="absolute top-4 right-4">
+                        <div className="flex items-center justify-center mb-2 lg:absolute top-2 right-2 lg:top-4 lg:right-4">
                             <button
                                 onClick={() => setShowModal(true)}
-                                className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition mr-2"
+                                className="bg-blue-500 text-white px-2 py-1 rounded-lg shadow-md hover:bg-blue-600 transition text-sm lg:text-base lg:px-4 lg:py-2 mr-4"
                             >
                                 Create Admin
                             </button>
                             <button
                                 onClick={getAdminList}
-                                className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition"
+                                className="bg-blue-500 text-white px-2 py-1 rounded-lg shadow-md hover:bg-blue-600 transition text-sm lg:text-base lg:px-4 lg:py-2"
                             >
                                 See List of Admins
                             </button>
@@ -473,45 +473,46 @@ function App() {
                             </div>
                         </div>
                     )}
-                    <div className="flex justify-center items-center pb-8">
+                    <div className="flex justify-center items-center pb-4 lg:pb-8">
                         <img
                             src={stormcenter_logo}
                             alt="Weather"
-                            className="w-[300px] h-auto"
+                            className="w-[200px] h-auto lg:w-[300px]"
                         />
                     </div>
-                    <h1 className="text-4xl font-semibold text-center mb-6">
+
+                    <h1 className="text-2xl font-semibold text-center mb-4 lg:text-4xl lg:mb-6">
                         Welcome, {admin.name}
                     </h1>
 
                     <div className="mb-6 text-center">
                         <button
                             onClick={getAllWeatherInput}
-                            className="bg-blue-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-blue-600 transition w-full max-w-md mx-auto"
+                            className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition text-sm lg:text-base lg:px-6 lg:py-3 w-full max-w-md mx-auto"
                         >
                             Get All Data
                         </button>
                     </div>
 
                     {/* Centered Date Range and County Selector */}
-                    <div className="flex justify-between gap-6 mb-6 w-full max-w-7xl mx-auto">
-                        <div className="flex-1 p-6 bg-white rounded-lg shadow-md flex flex-col justify-between">
-                            <div className="mb-6">
+                    <div className="flex flex-col gap-4 mb-6 w-full max-w-7xl mx-auto lg:flex-row lg:gap-6">
+                        <div className="flex-1 p-4 bg-white rounded-lg shadow-md flex flex-col justify-between lg:p-6">
+                            <div className="mb-4 lg:mb-6">
                                 <DateMapComponent
                                     onDateRangeChange={handleDateRangeChange}
                                 />
                             </div>
                             <button
                                 onClick={submitDateRangeData}
-                                className="mt-auto mb-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-green-600 transition w-full"
+                                className="mt-auto mb-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition w-full text-sm lg:text-base lg:px-6 lg:py-3"
                             >
                                 Get Weather Data For Range Only
                             </button>
                         </div>
 
-                        <div className="flex-1 p-6 bg-white rounded-lg shadow-md flex flex-col justify-between">
-                            <div className="mb-6">
-                                <h2 className="text-xl font-semibold mb-2">
+                        <div className="flex-1 p-4 bg-white rounded-lg shadow-md flex flex-col justify-between lg:p-6">
+                            <div className="mb-4 lg:mb-6">
+                                <h2 className="text-lg font-semibold mb-2 lg:text-xl">
                                     Select Counties
                                 </h2>
                                 <CountySelector
@@ -522,7 +523,7 @@ function App() {
                             </div>
                             <button
                                 onClick={submitDataLocation}
-                                className="mt-auto mb-4 bg-teal-500 text-white px-6 py-3 rounded-lg shadow-md hover:bg-teal-600 transition w-full"
+                                className="mt-auto mb-4 bg-teal-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-teal-600 transition w-full text-sm lg:text-base lg:px-6 lg:py-3"
                             >
                                 Get Weather Data For Location Only
                             </button>
@@ -552,7 +553,7 @@ function App() {
                         </button>
                     </div>
 
-                    <div className="mt-4 flex justify-between px-6">
+                    <div className="mt-4 flex flex-col items-center gap-y-4 px-6 lg:flex-row lg:justify-between lg:gap-y-0">
                         {data.length > 0 && (
                             <>
                                 <button
