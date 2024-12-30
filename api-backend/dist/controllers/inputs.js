@@ -2,6 +2,7 @@ import { prisma } from "../config.js";
 import axios from "axios";
 import processMediaMiddleware from "../middleware/processMediaMiddleware.js";
 import { googleGeocodingKey } from "../config.js";
+import { uploadToS3, } from "../middleware/processMediaUpload.js";
 const geocodingApiUrl = `https://maps.googleapis.com/maps/api/geocode/json`;
 const getWeatherInputs = async (req, res) => {
     try {
@@ -98,12 +99,14 @@ const createWeatherInput = async (req, res) => {
         const { email, name, location, city } = req.body;
         console.log(city);
         let { precipTotal, showsDamage } = req.body;
+        // Validate required fields
         if (!email || !name || !location || !city) {
             res.status(400).json({
                 error: "All fields are required except pictures or videos.",
             });
             return;
         }
+        // Geocode city using Google API
         const cityResponse = await axios.get(geocodingApiUrl, {
             params: {
                 address: city,
@@ -115,29 +118,34 @@ const createWeatherInput = async (req, res) => {
             return;
         }
         const { lat, lng } = cityResponse.data.results[0].geometry.location;
-        if (showsDamage === "true") {
-            showsDamage = true;
-        }
-        else if (showsDamage === "false") {
-            showsDamage = false;
-        }
+        // Normalize boolean field
+        showsDamage = showsDamage === "true";
+        // Set default value for precipTotal if not provided
         if (!precipTotal)
             precipTotal = 0.0;
-        // Get the file names from the request (added by the middleware)
-        const { imageName, videoName } = req.uploadedFiles;
-        // Save data to database
+        // Initialize file names for uploaded files
+        let imageName = null;
+        let videoName = null;
+        // Upload files to S3 if provided
+        if (req.files?.image?.[0]) {
+            imageName = await uploadToS3(req.files.image[0]);
+        }
+        if (req.files?.video?.[0]) {
+            videoName = await uploadToS3(req.files.video[0]);
+        }
+        // Save data to the database
         const weather_input = await prisma.weatherInput.create({
             data: {
-                email: email,
-                name: name,
+                email,
+                name,
                 precipTotal: parseFloat(precipTotal),
-                location: location,
-                city: city,
+                location,
+                city,
                 latitude: lat,
                 longitude: lng,
                 picturePath: imageName,
                 videoPath: videoName,
-                showsDamage: showsDamage,
+                showsDamage,
             },
         });
         console.log("Successful POST of Id:", weather_input.id);

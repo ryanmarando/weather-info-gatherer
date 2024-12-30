@@ -2,7 +2,7 @@ import crypto from "crypto";
 import { s3, bucketName } from "../config.js";
 import { PutObjectCommand } from "@aws-sdk/client-s3";
 const randomImageName = (bytes = 32) => crypto.randomBytes(bytes).toString("hex");
-const processMediaUpload = async (req, res, next) => {
+export const processMediaUpload = async (req, res, next) => {
     try {
         const { files } = req;
         let imageName = null;
@@ -52,4 +52,22 @@ const processMediaUpload = async (req, res, next) => {
         res.status(500).json({ error: "Error uploading files" });
     }
 };
-export default processMediaUpload;
+export const uploadToS3 = async (file) => {
+    try {
+        const fileName = randomImageName();
+        const params = {
+            Bucket: bucketName,
+            Key: fileName,
+            Body: file.buffer,
+            ContentType: file.mimetype,
+        };
+        const command = new PutObjectCommand(params);
+        await s3.send(command);
+        console.log(`File uploaded to S3: ${file.originalname}`);
+        return fileName; // Return the generated key for further use
+    }
+    catch (err) {
+        console.error("Error uploading file:", err);
+        throw new Error("File upload failed");
+    }
+};
