@@ -13,3 +13,4 @@ await prisma.admin.create({
         },
     },
 });
+//await prisma.weatherInput.deleteMany();

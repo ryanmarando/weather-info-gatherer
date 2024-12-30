@@ -1,7 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { S3Client } from "@aws-sdk/client-s3";
 import dotenv from "dotenv";
-console.log("conn string", process.env.DATABASE_URL);
 export const prisma = new PrismaClient();
 dotenv.config();
 export const bucketName = process.env.BUCKET_NAME;

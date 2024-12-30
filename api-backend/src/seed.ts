@@ -5,13 +5,15 @@ import { genericPassword } from "./config.js";
 const password = await bcrypt.hash(genericPassword!, 10);
 
 await prisma.admin.create({
-    data: {
-        email: "marandoryan@gmail.com",
-        name: "Ryan Marando",
-        password: {
-            create: {
-                hash: password,
-            },
-        },
+  data: {
+    email: "marandoryan@gmail.com",
+    name: "Ryan Marando",
+    password: {
+      create: {
+        hash: password,
+      },
     },
+  },
 });
+
+//await prisma.weatherInput.deleteMany();
