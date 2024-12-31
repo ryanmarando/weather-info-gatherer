@@ -1,5 +1,6 @@
 import { prisma } from "../config.js";
 import bcrypt from "bcrypt";
+import { genericPassword } from "../config.js";
 const getAdminUsers = async (req, res) => {
     try {
         if (req.query.email) {
@@ -107,8 +108,42 @@ const editAdminUser = async (req, res) => {
         });
     }
 };
+export const createAdminUser = async (req, res, next) => {
+    try {
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(genericPassword, saltRounds);
+        const { email, name } = req.body;
+        if (!email || !name || !hashedPassword) {
+            res.status(400).json({
+                error: "All fields are required.",
+            });
+            return;
+        }
+        const adminUser = await prisma.admin.create({
+            data: {
+                email: email,
+                name: name,
+                password: {
+                    create: {
+                        hash: hashedPassword,
+                    },
+                },
+            },
+        });
+        console.log("Successful POST of Admin Id:", adminUser.id);
+        res.status(201).json(adminUser);
+        return;
+    }
+    catch (error) {
+        console.log("Unsuccessful POST of Admin");
+        res.status(500).json({
+            error: `Unsuccessful POST...${error}`,
+        });
+    }
+};
 export default {
     getAdminUsers,
     deleteAdminUser,
     editAdminUser,
+    createAdminUser,
 };
