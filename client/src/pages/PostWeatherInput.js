@@ -1,8 +1,8 @@
 import { useState, useRef } from "react";
 import { baseURL } from "../config";
-import { ClipLoader } from "react-spinners";
 import stormcenter_logo from "../images/stormcenter_logo.png";
 import { Autocomplete } from "@react-google-maps/api";
+import ReactAnimatedWeather from "react-animated-weather";
 
 const WeatherInputForm = () => {
   const [message, setMessage] = useState("");
@@ -40,6 +40,20 @@ const WeatherInputForm = () => {
     "Wayne",
     "Other",
   ];
+
+  const weatherWind = {
+    icon: "WIND",
+    color: "goldenrod",
+    size: 80,
+    animate: true,
+  };
+
+  const weatherPC = {
+    icon: "PARTLY_CLOUDY_DAY",
+    color: "goldenrod",
+    size: 80,
+    animate: true,
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -138,7 +152,7 @@ const WeatherInputForm = () => {
     // Reset the message after 5 seconds
     setTimeout(() => {
       setMessage("");
-    }, 5000);
+    }, 10000);
   };
 
   const handleOnLoad = (autocomplete) => {
@@ -161,13 +175,25 @@ const WeatherInputForm = () => {
     return (
       <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
         <div className="bg-white rounded-lg shadow-lg p-6 relative w-11/12 max-w-md">
+          {/* Close Button */}
           <button
-            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+            className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl font-bold"
             onClick={onClose}
           >
             &times;
           </button>
-          {children}
+
+          {/* Logo */}
+          <div className="flex justify-center items-center pb-6">
+            <img
+              src={stormcenter_logo}
+              alt="Weather"
+              className="w-[200px] h-auto"
+            />
+          </div>
+
+          {/* Content Area */}
+          <div className="text-center">{children}</div>
         </div>
       </div>
     );
@@ -347,15 +373,30 @@ const WeatherInputForm = () => {
       </form>
       {/* Modal for loading */}
       <Modal isOpen={loading} onClose={() => setLoading(false)}>
-        <div className="flex justify-center">
-          <ClipLoader size={50} color="#3498db" />
+        {/* Animated Weather Icon 1 */}
+        <div className="flex justify-center items-center mb-6">
+          <ReactAnimatedWeather
+            icon={weatherWind.icon}
+            color={weatherWind.color}
+            size={80} // Reduced size for better fit
+            animate={weatherWind.animate}
+          />
         </div>
-        <p className="mt-4 text-center text-gray-700">Loading...</p>
+        <p className="mt-4 text-center text-gray-700">Submitting...</p>
       </Modal>
 
       {/* Modal for message */}
       <Modal isOpen={!!message} onClose={() => setMessage("")}>
         <p className="text-center text-green-500 font-semibold">{message}</p>
+        {/* Animated Weather Icon 2 */}
+        <div className="flex justify-center items-center mt-6">
+          <ReactAnimatedWeather
+            icon={weatherPC.icon}
+            color={weatherPC.color}
+            size={80} // Consistent size for icons
+            animate={weatherPC.animate}
+          />
+        </div>
       </Modal>
     </div>
   );
