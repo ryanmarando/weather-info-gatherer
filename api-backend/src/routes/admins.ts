@@ -6,17 +6,17 @@ import validateAdminUser from "../middleware/validation.js";
 const router = express.Router();
 
 router.get("/", adminController.getAdminUsers);
-// router.post(
-//   "/",
-//   xss,
-//   validateAdminUser.validateAdminUser,
-//   adminController.createAdminUser
-// );
+router.post(
+  "/",
+  xss,
+  validateAdminUser.validateAdminUser,
+  adminController.createAdminUser
+);
 router.patch(
-    "/:id",
-    xss,
-    validateAdminUser.validateAdminUser,
-    adminController.editAdminUser
+  "/:id",
+  xss,
+  validateAdminUser.validateAdminUser,
+  adminController.editAdminUser
 );
 router.delete("/:id", adminController.deleteAdminUser);
 
