@@ -371,6 +371,7 @@ const WeatherInputForm = () => {
           </button>
         </div>
       </form>
+
       {/* Modal for loading */}
       <Modal isOpen={loading} onClose={() => setLoading(false)}>
         {/* Animated Weather Icon 1 */}
@@ -398,6 +399,12 @@ const WeatherInputForm = () => {
           />
         </div>
       </Modal>
+
+      <footer className="flex justify-center items-center h-12 mt-auto">
+        <p className="text-sm text-gray-700">
+          &copy; {new Date().getFullYear()} Stormcenter 7
+        </p>
+      </footer>
     </div>
   );
 };
