@@ -7,10 +7,13 @@ import LoginPage from "../components/LoginPage";
 import { baseURL } from "../config";
 import Papa from "papaparse";
 import stormcenter_logo from "../images/stormcenter_logo.png";
+import ReactAnimatedWeather from "react-animated-weather";
 
 function App() {
   const [data, setData] = useState([]);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
   const [dateRange, setDateRange] = useState({ startDate: "", endDate: "" });
   const [selectedCounties, setSelectedCounties] = useState([]);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -27,6 +30,13 @@ function App() {
   const [token, setToken] = useState(null);
   const [showAdminListModal, setShowAdminListModal] = useState(false);
   const [adminList, setAdminList] = useState([]);
+
+  const weatherWind = {
+    icon: "WIND",
+    color: "goldenrod",
+    size: 80,
+    animate: true,
+  };
 
   const handleLoginSuccess = (success, token, admin) => {
     if (success) {
@@ -48,6 +58,10 @@ function App() {
 
   const getAllWeatherInput = async () => {
     try {
+      setMessage("Loading...");
+      setLoading(true);
+      const delay = new Promise((resolve) => setTimeout(resolve, 1000));
+
       const response = await fetch(baseURL + "/inputs", {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -56,15 +70,19 @@ function App() {
 
       if (response.status === 401) {
         setIsAdmin(false);
-        return alert("Authorization failed. You are not an admin.");
+        return setMessage(
+          "Authorization failed. You're session may have expired."
+        );
       }
 
       const data = await response.json();
 
       if (data.error) {
-        return alert("No data found...");
+        return setMessage("No data found...");
       }
+      await delay;
       setData(data);
+      setLoading(false);
     } catch (error) {
       setError("Error fetching data:" + error.message);
     }
@@ -72,6 +90,8 @@ function App() {
 
   const downloadCSV = () => {
     try {
+      setMessage("Loading...");
+      setLoading(true);
       // Map the data to include only the fields you need for each row
       const formattedData = data.map((item) => ({
         id: item.id,
@@ -97,6 +117,7 @@ function App() {
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
+      setMessage("Successful CSV download...");
     } catch (error) {
       console.error("Error generating CSV:", error);
     }
@@ -114,6 +135,10 @@ function App() {
       }
       return a.email.localeCompare(b.email);
     });
+    if (sortedData.length === 0) {
+      setLoading(true);
+      return setMessage("No data found.");
+    }
     setData(sortedData);
   };
 
@@ -121,7 +146,8 @@ function App() {
     let sortedData = [...data];
     sortedData = sortedData.filter((item) => item.showsDamage === true);
     if (sortedData.length === 0) {
-      return alert("No data found.");
+      setLoading(true);
+      return setMessage("No data found with damage.");
     }
     setData(sortedData);
   };
@@ -131,11 +157,14 @@ function App() {
   }, []);
 
   const submitDateRangeData = async () => {
+    setMessage("Loading...");
+    setLoading(true);
     if (dateRange.startDate === "" || dateRange.endDate === "")
-      return alert("Please choose times.");
+      return setMessage("Please choose times.");
     setTimeStartStampQuery(dateRange.startDate);
     setTimeStampEndQuery(dateRange.endDate);
     try {
+      const delay = new Promise((resolve) => setTimeout(resolve, 1000));
       const response = await fetch(
         baseURL +
           "/inputs?startTime=" +
@@ -151,15 +180,19 @@ function App() {
 
       if (response.status === 401) {
         setIsAdmin(false);
-        return alert("Authorization failed. You are not an admin.");
+        return setMessage(
+          "Authorization failed. You're session may have expired."
+        );
       }
 
       if (!response.ok) {
-        alert("No data found in those ranges");
+        setMessage("No data found in those ranges");
         return;
       }
       const data = await response.json();
+      await delay;
       setData(data);
+      setLoading(false);
     } catch (error) {
       setError("Error fetching data:" + error.message);
     }
@@ -170,10 +203,16 @@ function App() {
   };
 
   const submitDataLocation = async () => {
-    if (selectedCounties.length === 0) return alert("Please choose counties.");
+    if (selectedCounties.length === 0) {
+      setLoading(true);
+      return setMessage("Please choose counties.");
+    }
     const selectedCountiesString = selectedCounties.join(",");
     setlocationQuery(selectedCountiesString);
     try {
+      const delay = new Promise((resolve) => setTimeout(resolve, 1000));
+      setLoading(true);
+      setMessage("Loading...");
       const response = await fetch(
         baseURL + "/inputs?location=" + selectedCountiesString,
         {
@@ -185,26 +224,35 @@ function App() {
 
       if (response.status === 401) {
         setIsAdmin(false);
-        return alert("Authorization failed. You are not an admin.");
+        return setMessage(
+          "Authorization failed. You're session may have expired."
+        );
       }
 
       if (!response.ok) {
-        alert("No data found in those locations");
+        setMessage("No data found in those locations");
+        //setMessage("No data found in those locations");
         return;
       }
       const data = await response.json();
+      await delay;
       setData(data);
+      setLoading(false);
     } catch (error) {
       setError("Error fetching data:" + error.message);
     }
   };
 
   const submitDataLocationAndTime = async () => {
+    setLoading(true);
+    const delay = new Promise((resolve) => setTimeout(resolve, 1000));
     if (dateRange.startDate === "" || dateRange.endDate === "")
-      return alert("Please choose times.");
-    if (selectedCounties.length === 0) return alert("Please choose counties.");
+      return setMessage("Please choose times.");
+    if (selectedCounties.length === 0)
+      return setMessage("Please choose counties.");
     const selectedCountiesString = selectedCounties.join(",");
     try {
+      setMessage("Loading...");
       const response = await fetch(
         baseURL +
           "/inputs?location=" +
@@ -222,15 +270,18 @@ function App() {
 
       if (response.status === 401) {
         setIsAdmin(false);
-        return alert("Authorization failed. You are not an admin.");
+        setMessage("Authorization failed. You're session may have expired...");
+        return;
       }
 
       if (!response.ok) {
-        alert("No data found in those locations and or time period.");
+        setMessage("No data found in those locations and or time period.");
         return;
       }
       const data = await response.json();
+      await delay;
       setData(data);
+      setLoading(false);
     } catch (error) {
       setError("Error fetching data:" + error.message);
     }
@@ -238,6 +289,7 @@ function App() {
 
   const handleDelete = async (id) => {
     try {
+      setLoading(true);
       const response = await fetch(`${baseURL}/inputs/${id}`, {
         method: "DELETE",
         headers: {
@@ -247,7 +299,9 @@ function App() {
 
       if (response.status === 401) {
         setIsAdmin(false);
-        return alert("Authorization failed. You are not an admin.");
+        return setMessage(
+          "Authorization failed. You're session may have ended."
+        );
       }
 
       if (response.ok) {
@@ -255,12 +309,17 @@ function App() {
       } else {
         console.error("Failed to delete weather input:", await response.json());
       }
+      setMessage("Successful deletion!");
+      setTimeout(() => {
+        setLoading(false);
+      }, 3000);
     } catch (error) {
       console.error("Error deleting weather input:", error);
     }
   };
 
   const onEdit = async (id, updatedValues) => {
+    setLoading(true);
     const response = await fetch(`${baseURL}/inputs/${id}`, {
       method: "PATCH",
       headers: {
@@ -272,7 +331,9 @@ function App() {
 
     if (response.status === 401) {
       setIsAdmin(false);
-      return alert("Authorization failed. You are not an admin.");
+      return setMessage(
+        "Authorization failed. You're session may have expired."
+      );
     }
 
     if (response.ok) {
@@ -281,6 +342,10 @@ function App() {
           item.id === id ? { ...item, ...updatedValues } : item
         )
       );
+      setMessage("Successfully edited!");
+      setTimeout(() => {
+        setLoading(false);
+      }, 3000);
     } else {
       console.error("Failed to update data on the server");
     }
@@ -288,6 +353,8 @@ function App() {
 
   const handleCreateAdmin = async () => {
     try {
+      setLoading(true);
+      setMessage("Loading...");
       const response = await fetch(`${baseURL}/admins`, {
         method: "POST",
         headers: {
@@ -299,15 +366,17 @@ function App() {
 
       if (response.status === 401) {
         setIsAdmin(false);
-        return alert("Authorization failed. You are not an admin.");
+        return setMessage(
+          "Authorization failed. You're session may have expired."
+        );
       }
 
       if (response.ok) {
-        alert("Admin created successfully!");
+        setMessage("Admin created successfully!");
         setShowModal(false);
         setNewAdmin({ email: "", name: "" });
       } else {
-        alert("Failed to create admin.");
+        setMessage("Failed to create admin.");
       }
     } catch (error) {
       console.error("Error creating admin:", error);
@@ -334,15 +403,20 @@ function App() {
       });
 
       if (response.status === 401) {
+        setLoading(true);
         setIsAdmin(false);
-        return alert("Authorization failed. You are not an admin.");
+        return setMessage(
+          "Authorization failed. You're session may have expired."
+        );
       }
 
       if (response.ok) {
-        alert("Password updated successfully.");
+        setLoading(true);
+        setMessage("Password updated successfully.");
         setShowChangePasswordModal(false);
       } else {
-        alert("Failed to update password.");
+        setLoading(true);
+        setMessage("Failed to update password.");
       }
     } catch (error) {
       console.error("Error updating password:", error);
@@ -359,7 +433,10 @@ function App() {
 
       if (response.status === 401) {
         setIsAdmin(false);
-        return alert("Authorization failed. You are not an admin.");
+        setLoading(true);
+        return setMessage(
+          "Authorization failed. You're session may have expired."
+        );
       }
 
       if (response.ok) {
@@ -384,7 +461,10 @@ function App() {
 
       if (response.status === 401) {
         setIsAdmin(false);
-        return alert("Authorization failed. You are not an admin.");
+        setLoading(true);
+        return setMessage(
+          "Authorization failed. You're session may have expired."
+        );
       }
 
       if (response.ok) {
@@ -392,7 +472,8 @@ function App() {
         setAdminList((prevAdmins) =>
           prevAdmins.filter((admin) => admin.id !== adminId)
         );
-        alert("Successfully deleted admin.");
+        setMessage("Successfully deleted admin.");
+        setLoading(true);
       } else {
         console.error("Failed to delete admin");
       }
@@ -404,6 +485,36 @@ function App() {
   const getAdminList = () => {
     fetchAdmins();
     setShowAdminListModal(true);
+  };
+
+  const Modal = ({ children, isOpen, onClose }) => {
+    if (!isOpen) return null;
+
+    return (
+      <div className="fixed inset-0 bg-gray-900 bg-opacity-50 flex justify-center items-center z-50">
+        <div className="bg-white rounded-lg shadow-lg p-6 relative w-11/12 max-w-md">
+          {/* Close Button */}
+          <button
+            className="absolute top-3 right-3 text-gray-500 hover:text-gray-700 text-2xl font-bold"
+            onClick={onClose}
+          >
+            &times;
+          </button>
+
+          {/* Logo */}
+          <div className="flex justify-center items-center pb-6">
+            <img
+              src={stormcenter_logo}
+              alt="Weather"
+              className="w-[200px] h-auto"
+            />
+          </div>
+
+          {/* Content Area */}
+          <div className="text-center">{children}</div>
+        </div>
+      </div>
+    );
   };
 
   if (error) {
@@ -632,6 +743,19 @@ function App() {
             timeStampStartQuery={timeStampStartQuery}
             timeStampEndQuery={timeStampEndQuery}
           />
+
+          <Modal isOpen={loading} onClose={() => setLoading(false)}>
+            {/* Animated Weather Icon 1 */}
+            <div className="flex justify-center items-center mb-6">
+              <ReactAnimatedWeather
+                icon={weatherWind.icon}
+                color={weatherWind.color}
+                size={80} // Reduced size for better fit
+                animate={weatherWind.animate}
+              />
+            </div>
+            <p className="mt-4 text-center text-gray-700">{message}</p>
+          </Modal>
         </div>
       ) : (
         <LoginPage onSubmit={handleLoginSuccess} />

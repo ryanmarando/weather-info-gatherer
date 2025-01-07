@@ -8,18 +8,19 @@ import xss from "./middleware/xss.js";
 import errors from "./middleware/errors.js";
 import authenticated from "./middleware/auth.js";
 const app = express();
-const port = 8080; // 3000 8080
-const corsOptions = {
-    origin: [
-        "https://weather-info-gatherer.vercel.app",
-        "https://www.storm-seekers.com",
-    ],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true,
-};
+const port = 3030; // 3000 8080
+// const corsOptions = {
+//     origin: [
+//         "https://weather-info-gatherer.vercel.app",
+//         "https://www.storm-seekers.com",
+//     ],
+//     methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+//     allowedHeaders: ["Content-Type", "Authorization"],
+//     credentials: true,
+// };
 app.use(express.json());
-app.use(cors(corsOptions));
+//app.use(cors(corsOptions));
+app.use(cors());
 app.use(xss);
 app.use(logging.logRequest);
 app.get("/", (req, res) => {
